@@ -1,9 +1,10 @@
+# SPDX-FileCopyrightText: © 2024 Matthew Rothlisberger
+# SPDX-License-Identifier: GPL-3.0-only
+
 [package]
-name = "bget"
+name = "bgain"
 version = "0.1.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 native-tls = "0.2"

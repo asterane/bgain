@@ -1,3 +1,19 @@
+// bGain, a tool to retrieve blood glucose readings for display
+
+// SPDX-FileCopyrightText: © 2024 Matthew Rothlisberger
+// SPDX-License-Identifier: GPL-3.0-only
+
+// <>
+
+// src/main.rs
+
+// Read a configuration file containing a Nightscout server URL and
+// access token; get the latest readings; generate a display string
+// consisting of latest reading, a trend arrow, and latest delta;
+// write out to a file.
+
+// <>
+
 use std::fmt;
 use std::io::prelude::*;
 use std::net::TcpStream;
@@ -6,7 +22,7 @@ use std::path::PathBuf;
 use native_tls::{HandshakeError, TlsStream};
 
 const DEF_NS_PORT: u16 = 443;
-const DEF_TGT_FILE: &'static str = "/tmp/bget-latest";
+const DEF_TGT_FILE: &'static str = "/tmp/bgain-latest";
 const DEF_MAX_WAIT: u64 = 330;
 const DEF_MAX_AGE: u64 = 1800;
 
@@ -14,15 +30,15 @@ const WAIT_EXTRA: u64 = 5;
 const LATE_INTERVAL: u64 = 5;
 const LATE_BACKOFF: u64 = 2;
 
-const CFG_REL_PATH: &'static str = ".config/bget/bget.cfg";
+const CFG_REL_PATH: &'static str = ".config/bgain/bgain.cfg";
 
-const HELP: &'static str = "bget, a tool to retrieve blood glucose readings from Nighscout
+const HELP: &'static str = "bGain, a tool to retrieve blood glucose readings from Nightscout
 
-Usage: bget [-h] [-o] [-c <path to config>]
+Usage: bgain [-h] [-o] [-c <path to config>]
 
 Reads information about your Nightscout instance from a configuration
-file at `$HOME/.config/bget/bget.cfg`. Retrieves the latest reading
-and delta; writes both to the target file `/tmp/bget-latest`. Attempts
+file at `$HOME/.config/bgain/bgain.cfg`. Retrieves the latest reading
+and delta; writes both to the target file `/tmp/bgain-latest`. Attempts
 to retrieve and write a new reading about every five minutes until
 termination.
 
@@ -31,7 +47,7 @@ Options:
 -o : retrieve and write only one reading, then terminate
 -c <path to config> : read configuration from the provided file";
 
-const USAGE: &'static str = "bget [-h] [-o] [-c <path to config>]";
+const USAGE: &'static str = "bgain [-h] [-o] [-c <path to config>]";
 
 #[derive(Debug)]
 struct Cfg {
@@ -94,9 +110,9 @@ struct Entry {
 
 macro_rules! errc {
     ( $code:literal $mode:ident $(,s $attc:expr)? $(,p $pass:ident)? ) => {
-        BgetErr {
+        BgainErr {
             code: $code,
-            mode: BgetErrKind::$mode,
+            mode: BgainErrKind::$mode,
             $(attc: Some(String::from($attc)),)?
             $(pass: Some(Box::from($pass)),)?
             ..Default::default()
@@ -104,7 +120,7 @@ macro_rules! errc {
     };
 }
 
-enum BgetErrKind {
+enum BgainErrKind {
     WrongArg,
     CfgNoHome,
     CfgNotFound,
@@ -120,25 +136,25 @@ enum BgetErrKind {
     Unknown,
 }
 
-struct BgetErr {
+struct BgainErr {
     code: i32,
-    mode: BgetErrKind,
+    mode: BgainErrKind,
     attc: Option<String>,
     pass: Option<Box<dyn std::error::Error>>,
 }
 
-impl Default for BgetErr {
+impl Default for BgainErr {
     fn default() -> Self {
         Self {
             code: 1,
-            mode: BgetErrKind::Unknown,
+            mode: BgainErrKind::Unknown,
             attc: None,
             pass: None,
         }
     }
 }
 
-impl fmt::Display for BgetErr {
+impl fmt::Display for BgainErr {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let sp1 = match self.code {
             1 => "failure",
@@ -146,7 +162,7 @@ impl fmt::Display for BgetErr {
             3 => "invalid config",
             _ => panic!("bad error code"),
         };
-        use BgetErrKind::*;
+        use BgainErrKind::*;
         let sp2 = match self.mode {
             WrongArg => USAGE,
             CfgNoHome => "config not found; HOME not defined",
@@ -265,7 +281,7 @@ fn main() {
         process_sleep(checkin as _);
     }
 
-    fn fail(err: BgetErr) -> ! {
+    fn fail(err: BgainErr) -> ! {
         println!("{}", err);
 
         match err.pass {
@@ -277,7 +293,7 @@ fn main() {
     }
 }
 
-fn write_out(tcfg: &Cfg, output: &[u8]) -> Result<(), BgetErr> {
+fn write_out(tcfg: &Cfg, output: &[u8]) -> Result<(), BgainErr> {
     let mut target = match std::fs::File::create(&tcfg.tgt_file) {
         Ok(f) => f,
         Err(e) => return Err(errc!(1 FileFail ,p e)),
@@ -290,7 +306,7 @@ fn write_out(tcfg: &Cfg, output: &[u8]) -> Result<(), BgetErr> {
     Ok(())
 }
 
-fn parse_config(text: String) -> Result<Cfg, BgetErr> {
+fn parse_config(text: String) -> Result<Cfg, BgainErr> {
     let (mut turl, mut ttkn, mut tprt, mut ttfl, mut tmcw, mut tmra) =
         (None, None, None, None, None, None);
 
@@ -352,7 +368,7 @@ fn parse_config(text: String) -> Result<Cfg, BgetErr> {
     })
 }
 
-fn get_entries(tcfg: &Cfg, request: &[u8]) -> Result<Vec<Entry>, BgetErr> {
+fn get_entries(tcfg: &Cfg, request: &[u8]) -> Result<Vec<Entry>, BgainErr> {
     let tls_conn_builder = match native_tls::TlsConnector::new() {
         Ok(tcb) => tcb,
         Err(e) => return Err(errc!(1 TlsFail ,p e)),
@@ -490,7 +506,7 @@ fn get_time_secs() -> i64 {
     time_out
 }
 
-fn parse_nightscout_entries(msg: Vec<u8>) -> Result<Vec<Entry>, BgetErr> {
+fn parse_nightscout_entries(msg: Vec<u8>) -> Result<Vec<Entry>, BgainErr> {
     enum ParseState {
         Outer,
         Time,
@@ -498,7 +514,7 @@ fn parse_nightscout_entries(msg: Vec<u8>) -> Result<Vec<Entry>, BgetErr> {
         Dir,
     }
 
-    fn dir_text_to_arrow(dir: &Vec<u8>) -> Result<Arrow, BgetErr> {
+    fn dir_text_to_arrow(dir: &Vec<u8>) -> Result<Arrow, BgainErr> {
         match ARROW_STRS.iter().enumerate().find_map(|(i, e)| {
             if dir == *e {
                 (i as u8).try_into().ok()

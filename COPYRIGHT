@@ -1,0 +1,61 @@
+This notice applies to bGain, a tool to retrieve blood glucose readings
+for display.
+
+bGain (TM) is software composed of all source code files in the
+repository which contains this notice.
+
+Copyright © 2024 Matthew Rothlisberger
+
+Matthew Rothlisberger is the exclusive copyright owner and licensor of
+bGain and all associated trade names, trademarks, and service marks.
+
+
+bGain is free software: you can redistribute it and / or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation, version 3 of the License only.
+
+bGain is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+for more details.
+
+You should have received a copy of the GNU General Public License
+along with bGain (in the LICENSES directory). If not, see
+<https://www.gnu.org/licenses/>.
+
+
+Supplemental terms in accordance with section 7 of the GNU General
+Public License:
+
+    - You are required to preserve this notice in full with any
+      unmodified distribution of the bGain source code.
+
+    - You are prohibited from misrepresenting the origin of bGain or
+      any part of it; modified versions of bGain must be clearly
+      marked as different from the original and may not be distributed
+      under the bGain name, or using the same trade names or
+      trademarks as bGain.
+
+    - You may not use the names of the authors, contributors, or
+      licensors of bGain for publicity purposes without the express
+      written permission of Matthew Rothlisberger.
+
+    - You are not granted any rights to use any trade names,
+      trademarks, or service marks associated with bGain, for any
+      purpose, without the express written permission of Matthew
+      Rothlisberger.
+
+    - You are required to indemnify and to hold harmless licensors and
+      authors of bGain if you convey it, or a modified version, with
+      contractual assumptions of liability to the recipient, for any
+      liability that these contractual assumptions directly impose on
+      those licensors and authors.
+
+The above supplemental terms apply, along with the GNU General Public
+License version 3, to all versions of bGain, modified or unmodified,
+except as explicitly permitted by Matthew Rothlisberger.
+
+
+This COPYRIGHT notice alone is licensed as follows:
+
+SPDX-License-Identifier: CC-BY-NC-ND-4.0
