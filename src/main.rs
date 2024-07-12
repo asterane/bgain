@@ -776,7 +776,7 @@ fn main() {
                 let expect = WAIT_EXTRA + (2 * lastread) - entries[1].secs;
 
                 (
-                    if curtime > expect {
+                    if curtime >= expect {
                         None
                     } else {
                         late_int = LATE_INTERVAL;

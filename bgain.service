@@ -1,0 +1,15 @@
+# bGain user service unit configuration file
+
+# SPDX-FileCopyrightText: © 2024 Matthew Rothlisberger
+# SPDX-License-Identifier: GPL-3.0-only
+
+[Unit]
+Description = Retrieve latest blood glucose
+
+[Service]
+Type = exec
+ExecSearchPath = /usr/bin:/usr/local/bin:%h/.local/bin
+ExecStart = bgain
+
+[Install]
+WantedBy = default.target
