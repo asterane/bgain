@@ -8,7 +8,7 @@
 =bgain [-h] [-o] [-c <path to config>]=
 
 Retrieves your latest blood glucose and the change since your last
-reading from your Nightscout server. Publishes a string containing
+reading from your [[https://github.com/nightscout/cgm-remote-monitor][Nightscout]] server. Publishes a string containing
 both, along with a trend arrow, to a temporary file in your
 filesystem. Repeats after an interval approximately matching the
 interval at which your server gets readings.
@@ -17,6 +17,24 @@ This program is intended to facilitate placing a blood glucose
 indicator on your desktop, a status bar, or in your own programs. Your
 script can simply read from the temporary file. bGain will make sure
 that the file is up-to-date.
+
+Rust and Cargo are required to compile bGain. To install, clone the
+repository, then run the following in its directory:
+
+#+begin_src bash
+$ make install
+$ make service # if you use systemd
+#+end_src
+
+You *must* configure bGain with your server's URL and access token. By
+default, bGain reads configuration from
+=~/.config/bgain/bgain.cfg=. You can copy the provided =bgain.def.cfg=
+example file to that path, then insert the URL and token for your
+server. The example file has explanatory comments.
+
+After installing the systemd unit file, run
+=systemctl --user enable --now bgain= to start bGain, which will run
+indefinitely, updating its temporary file promptly with each new reading.
 
 Here's an example shell script to update your X root window title with
 your current blood glucose:
@@ -28,18 +46,11 @@ gluc=$(cat /tmp/bgain-latest)
 xsetroot -name "$gluc"
 #+end_src
 
-By default, bGain reads configuration from
-=$HOME/.config/bgain/bgain.cfg=; see the example config in the
-=bgain.def.cfg= file. Copy this to the mentioned path and substitute
-in the URL and token for your server.
-
-A systemd unit file is also provided. After installing it, run
-=systemctl --user enable --now bgain= to start bGain, which will run
-indefinitely, updating its temporary file promptly with each new
-reading.
-
-This program uses Linux x86-64 system calls directly and will not work
+bGain uses Linux x86-64 system calls directly and will not work
 without modification on other operating systems or
 architectures. Known compatible with the API of Nightscout
 cgm-remote-monitor versions 14 and higher.
 
+Run with the =-h= option to show help and exit. Run with the =-o=
+option to retrieve only one reading and exit. Run with the =-c= option
+and provide a file path to read configuration from any location.
