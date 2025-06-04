@@ -433,6 +433,9 @@ fn read_http_msg(stream: &mut TlsStream<&TcpStream>) -> Result<Vec<u8>, String> 
                 }
                 Phase::MsgL => match chr {
                     b'\r' => {
+                        if seglen == 0 {
+                            return Ok(body)
+                        }
                         cr = true;
                         phase = Phase::Head;
                     }
