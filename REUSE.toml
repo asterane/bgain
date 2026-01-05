@@ -1,0 +1,6 @@
+version = 1
+
+[[annotations]]
+path = "COPYRIGHT"
+SPDX-License-Identifier = "LicenseRef-bGain-Notices"
+

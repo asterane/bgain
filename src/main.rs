@@ -434,7 +434,7 @@ fn read_http_msg(stream: &mut TlsStream<&TcpStream>) -> Result<Vec<u8>, String> 
                 Phase::MsgL => match chr {
                     b'\r' => {
                         if seglen == 0 {
-                            return Ok(body)
+                            return Ok(body);
                         }
                         cr = true;
                         phase = Phase::Head;
@@ -616,6 +616,8 @@ fn get_entries(tcfg: &Cfg, request: &[u8]) -> Result<Vec<Entry>, BgainErr> {
     api_conn.shutdown().unwrap_or(());
     tcp_conn.shutdown(std::net::Shutdown::Both).unwrap_or(());
 
+    // println!("{}", String::from_utf8_lossy(&msg));
+
     parse_nightscout_entries(msg)
 }
 
@@ -757,10 +759,12 @@ fn main() {
     };
 
     let request = format!(
-        "GET /api/v1/entries/?count=2&token={} HTTP/1.1\r\n\r\n",
-        &top_config.ns_token
+        "GET /api/v1/entries/sgv?count=2&token={} HTTP/1.1\r\nHost: {}\r\n\r\n",
+        &top_config.ns_token, &top_config.ns_url,
     )
     .into_bytes();
+
+    // println!("{}", String::from_utf8_lossy(&request));
 
     let mut late_int = LATE_INTERVAL;
     let mut err_rets = 0;
